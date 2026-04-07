@@ -22,7 +22,7 @@ class AuthController extends Controller
         ]);
 
         $user = User::create($validated);
-        
+
         $user->profile()->create([
             'username' => $request->username,
             'gender' => $request->gender,
@@ -46,5 +46,16 @@ class AuthController extends Controller
         }
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json(['success' => true, 'message' => 'User logged in successfully', 'user' => $user, 'token' => $token], 200);
+    }
+
+    public function logout( Request $request) {
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['message' => 'No hay sesión activa'], 401);
+        }
+
+        $user->currentAccessToken()->delete();
+
+        return response()->json(['message' => 'Token eliminado correctamente']);
     }
 }
