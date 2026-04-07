@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ProfilePicture;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProfilePictureController extends Controller
 {
@@ -28,24 +29,22 @@ class ProfilePictureController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
-    $request->validate([
+        $request->validate([
         'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
-    $user = $request->user();
-    if ($request->hasFile('profile_picture')) {
-        $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-
-        $profile = $request->user()->profile;
-
-        $profile->profilePictures()->update(['is_current' => false]);
-        
-        $profilePicture = $profile->profilePictures()->create([
-            'path' => $path,
-            'is_current' => true,
         ]);
-        return response()->json(['success' => true, 'message' => 'Profile picture uploaded successfully', 'path' => $profilePicture], 201);
-    }
+        $user = $request->user();
+        if ($request->hasFile('profile_picture')) {
+            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $profile = $request->user()->profile;
+
+            $profile->profilePictures()->update(['is_current' => false]);
+            
+            $profilePicture = $profile->profilePictures()->create([
+                'path' => $path,
+                'is_current' => true,
+            ]);
+            return response()->json(['success' => true, 'message' => 'Profile picture uploaded successfully', 'path' => $profilePicture], 201);
+        }
     }
 
     /**
