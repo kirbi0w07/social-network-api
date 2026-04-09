@@ -34,6 +34,7 @@ class ProfilePictureController extends Controller
         ]);
         $user = $request->user();
         if ($request->hasFile('profile_picture')) {
+            
             $path = $request->file('profile_picture')->store('profile_pictures', 'public');
             $profile = $request->user()->profile;
 
@@ -43,7 +44,10 @@ class ProfilePictureController extends Controller
                 'path' => $path,
                 'is_current' => true,
             ]);
-            return response()->json(['success' => true, 'message' => 'Profile picture uploaded successfully', 'path' => $profilePicture], 201);
+
+            $profile = $user->profile;
+
+            return response()->json(['success' => true, 'message' => 'Profile picture uploaded successfully', 'profile' => $profile], 201);
         }
     }
 
