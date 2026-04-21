@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfilePictureController;
 use App\Models\Profile;
 use Illuminate\Http\Request;
@@ -17,6 +19,8 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::resource('profile', Profile::class);
+    Route::resource('profile', ProfileController::class);
     Route::resource('profile_pictures', ProfilePictureController::class);
+    Route::resource('post', PostController::class);
+    Route::post('/post/{post}/react', [PostController::class, 'reactToPost']);
 });

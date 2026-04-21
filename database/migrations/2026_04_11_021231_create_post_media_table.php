@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('profiles', function (Blueprint $table) {
+        Schema::create('post_media', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('bio')->nullable();
-            $table->date('birthday');
-            $table->enum('gender', ['male', 'female', 'other', "prefer_not_to_say"]);
-            $table->string('username')->unique()->nullable();
+            $table->foreignId('post_id')->constrained();
+            $table->string('file_path')->required();
+            $table->enum('type', ['image','video']);
+            $table->integer('order')->default(1);
             $table->timestamps();
         });
     }
@@ -27,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('profiles');
+        Schema::dropIfExists('post_media');
     }
 };

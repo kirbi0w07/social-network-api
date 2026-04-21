@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('profiles', function (Blueprint $table) {
+        Schema::create('posts', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('bio')->nullable();
-            $table->date('birthday');
-            $table->enum('gender', ['male', 'female', 'other', "prefer_not_to_say"]);
-            $table->string('username')->unique()->nullable();
+            $table->foreignId('user_id')->constrained();
+            $table->string('body')->required()->max(5000);
+            $table->enum('privacy', ['public', 'friends', 'private'])->default('public');
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('profiles');
+        Schema::dropIfExists('posts');
     }
 };

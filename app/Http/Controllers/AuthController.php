@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Profile;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use PhpParser\Node\Stmt\TryCatch;
 
 class AuthController extends Controller
 {
@@ -17,19 +19,26 @@ class AuthController extends Controller
             'username' => 'required|string|max:255|unique:profiles',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
-            'gender' => 'required|in:male,female,other,i\'d_prefer_not_to_say',
+            'gender' => 'required|in:male,female,other,prefer_not_to_say',
             'birthday' => 'date|before:today',
         ]);
-
-        $user = User::create($validated);
-
-        $user->profile()->create([
-            'username' => $request->username,
-            'gender' => $request->gender,
-            'birthday' => $request->birthday,
-        ]);
-        $token = $user->createToken('auth_token')->plainTextToken;
-        return response()->json(['success' => true, 'message' => 'User registered successfully', 'user' => $user, 'token' => $token], 201);
+        DB::beginTransaction();
+        try {
+            $user = User::create($validated);
+            $user->profile()->create([
+                'username' => $request->username,
+                'gender' => $request->gender,
+                'birthday' => $request->birthday,
+            ]);
+        DB::commit();
+            $token = $user->createToken('auth_token')->plainTextToken;
+            return response()->json(['success' => true, 'message' => 'User registered successfully', 'user' => $user, 'token' => $token], 201);
+        } catch (\Throwable $th) {
+            return response()->json([
+            'success' => false,
+            'message' => 'Error al registrar: ' . $th->getMessage()
+        ], 500);
+        }
     }
 
     public function login(Request $request)
