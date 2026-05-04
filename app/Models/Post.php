@@ -38,8 +38,8 @@ class Post extends Model
 
     public function getUserReactionAttribute() {
 
-    return $this->reactions()
-                ->where('user_id', auth()->id())
-                ->first(['type']);
+        return $this->reactions()
+                    ->where('user_id', auth()->id())
+                    ->first(['type']);
     }
 }
