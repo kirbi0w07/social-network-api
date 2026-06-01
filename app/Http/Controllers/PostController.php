@@ -100,34 +100,62 @@ class PostController extends Controller
         //
     }
 
-    public function reactToPost(Request $request, Post $post)
-{
-    $user = $request->user();
-    $type = $request->type;
+public function reactToPost(Request $request, Post $post)
+    {
+        $user = $request->user();
+        $type = $request->type;
 
-    $existingReaction = $post->reactions()
-        ->where('user_id', $user->id)
-        ->first();
+        $existingReaction = $post->reactions()
+            ->where('user_id', $user->id)
+            ->first();
 
-    if ($existingReaction) {
-        if ($existingReaction->type === $type) {
-            $existingReaction->delete();
-            $userReaction = null;
+        if ($existingReaction) {
+            if ($existingReaction->type === $type) {
+                $existingReaction->delete();
+                $userReaction = null;
+            } else {
+                $existingReaction->update(['type' => $type]);
+                $userReaction = ['type' => $type];
+            }
         } else {
-            $existingReaction->update(['type' => $type]);
+            $post->reactions()->create([
+                'user_id' => $user->id,
+                'type' => $type,
+            ]);
             $userReaction = ['type' => $type];
         }
-    } else {
-        $post->reactions()->create([
+
+        return response()->json([
+            'user_reaction' => $userReaction,
+            'reactions_count' => $post->reactions()->count()
+        ], 200);
+    }
+public function commentAPost(Request $request, Post $post)
+    {
+        $user = $request->user();
+        $comment = $request->comment;
+        $comment = $post->comments()->create([
             'user_id' => $user->id,
-            'type' => $type,
+            'comment' => $comment
         ]);
-        $userReaction = ['type' => $type];
+
+        $comment->load('user.profile');
+        return response()->json([
+            'success' => true,
+            'comment' => $comment,
+            'comments_count' => $post->comments()->count()
+        ], 200);
     }
 
-    return response()->json([
-        'user_reaction' => $userReaction,
-        'reactions_count' => $post->reactions()->count()
-    ], 200);
-}
+    public function getCommentOfPost(Request $request, Post $post)
+    {
+        $user = $request->user();
+        $comments = $post->comments()->with('user.profile')->get();
+
+        return response()->json([
+            'success' => true,
+            'comments' => $comments,
+            'comments_count' => $post->comments()->count()
+        ], 200);
+    }
 }

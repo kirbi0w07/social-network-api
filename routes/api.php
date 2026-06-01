@@ -23,4 +23,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('profile_pictures', ProfilePictureController::class);
     Route::resource('post', PostController::class);
     Route::post('/post/{post}/react', [PostController::class, 'reactToPost']);
+    Route::post('/post/{post}/comment', [PostController::class, 'commentAPost']);
+    Route::post('/post/{post}/get_comment', [PostController::class, 'getCommentOfPost']);
 });
