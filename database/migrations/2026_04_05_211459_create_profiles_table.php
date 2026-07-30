@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('birthday');
             $table->enum('gender', ['male', 'female', 'other', "prefer_not_to_say"]);
             $table->string('username')->unique()->nullable();
+            $table->string('cover_picture')->nullable();
             $table->timestamps();
         });
     }

@@ -34,12 +34,12 @@ class ProfilePictureController extends Controller
         ]);
         $user = $request->user();
         if ($request->hasFile('profile_picture')) {
-            
+
             $path = $request->file('profile_picture')->store('profile_pictures', 'public');
             $profile = $request->user()->profile;
 
             $profile->profilePictures()->update(['is_current' => false]);
-            
+
             $profilePicture = $profile->profilePictures()->create([
                 'path' => $path,
                 'is_current' => true,
@@ -82,4 +82,38 @@ class ProfilePictureController extends Controller
     {
         //
     }
+
+    public function uploadCover(Request $request)
+{
+    $request->validate([
+        'cover_picture' =>
+            'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+    ]);
+
+    $user = $request->user();
+
+    if ($request->hasFile('cover_picture')) {
+
+        $path = $request
+            ->file('cover_picture')
+            ->store(
+                'cover_pictures',
+                'public'
+            );
+
+        $profile = $user->profile;
+
+        $profile->update([
+            'cover_picture' => $path,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' =>
+                'Cover picture uploaded successfully',
+            'profile' =>
+                $profile->fresh()
+        ], 201);
+    }
+}
 }

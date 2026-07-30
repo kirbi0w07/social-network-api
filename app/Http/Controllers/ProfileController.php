@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Friend;
 use App\Models\Profile;
+use App\Models\User;
+use GrahamCampbell\ResultType\Success;
 use Illuminate\Http\Request;
 
 class ProfileController extends Controller
@@ -10,7 +13,7 @@ class ProfileController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request) 
+    public function index(Request $request)
     {
         $user = $request->user();
         $profile = $user->profile;
@@ -67,4 +70,62 @@ class ProfileController extends Controller
     {
         //
     }
+
+public function getUserByUsername(Request $request)
+{
+    $username = $request->query('username');
+
+    $authUser = $request->user();
+
+    $userFinded = User::with('profile')
+        ->whereHas('profile', function ($query) use ($username) {
+            $query->where('username', $username);
+        })
+        ->first();
+
+    if (!$userFinded) {
+        return response()->json([
+            'success' => false
+        ], 404);
+    }
+
+    $friendship = Friend::where(function ($query) use ($authUser, $userFinded) {
+            $query->where('sender_id', $authUser->id)
+                  ->where('receiver_id', $userFinded->id);
+        })
+        ->orWhere(function ($query) use ($authUser, $userFinded) {
+            $query->where('sender_id', $userFinded->id)
+                  ->where('receiver_id', $authUser->id);
+        })
+        ->first();
+
+    // Valor por defecto
+    $userFinded->friendship_button = 'add';
+
+    if ($friendship) {
+
+        if ($friendship->status === 'accepted') {
+            $userFinded->friendship_button = 'friends';
+        }
+
+        elseif (
+            $friendship->status === 'pending' &&
+            $friendship->sender_id === $authUser->id
+        ) {
+            $userFinded->friendship_button = 'pending';
+        }
+
+        elseif (
+            $friendship->status === 'pending' &&
+            $friendship->receiver_id === $authUser->id
+        ) {
+            $userFinded->friendship_button = 'accept';
+        }
+    }
+
+    return response()->json([
+        'success' => true,
+        'userFinded' => $userFinded
+    ]);
+}
 }
