@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\FriendRequestAccepted;
+use App\Events\FriendRequestCreated;
 use App\Models\Friend;
 use App\Models\User;
 use App\Notifications\FriendRequestNotification;
+use App\Notifications\FriendRequestAcceptNotification;
 use Illuminate\Http\Request;
 
 
@@ -89,6 +92,12 @@ $authUser->load('profile.profilePictures');
         new FriendRequestNotification($authUser)
     );
 
+
+    $notification = $receiver->notifications()->latest()->first();
+
+    FriendRequestCreated::dispatch($friendship, $notification);
+
+
     return response()->json([
         'success' => true,
         'friendship' => $friendship
@@ -103,6 +112,8 @@ public function acceptFriendRequest(Request $request)
 
     $authUser = $request->user();
     $userId = $request->user_id;
+
+    $receiver = User::findOrFail($userId);
 
     $friendship = Friend::where('sender_id', $userId)
         ->where('receiver_id', $authUser->id)
@@ -119,6 +130,16 @@ public function acceptFriendRequest(Request $request)
     // Actualizar el estado de la solicitud a "accepted"
     $friendship->status = 'accepted';
     $friendship->save();
+
+    // Enviar la notificación al usuario receptor
+    $receiver->notify(
+        new FriendRequestAcceptNotification($authUser)
+    );
+
+
+    $notification = $receiver->notifications()->latest()->first();
+
+    FriendRequestAccepted::dispatch($friendship, $notification);
 
     return response()->json([
         'success' => true,

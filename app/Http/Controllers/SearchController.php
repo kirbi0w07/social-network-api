@@ -8,67 +8,81 @@ use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
-       public function search(Request $request)
-{
-    $request->validate([
-        'search' => 'required|string'
-    ]);
+    public function search(Request $request)
+    {
+        $request->validate([
+            'search' => 'required|string'
+        ]);
 
-    $search = $request->search;
-    $authUser = $request->user();
+        $search = $request->search;
+        $authUser = $request->user();
 
-    $users = User::with('profile')
-        ->where(function ($query) use ($search) {
+        $users = User::with('profile')
+            ->where(function ($query) use ($search) {
 
-            $query->where('name', 'LIKE', "%{$search}%")
-                  ->orWhere('last_name', 'LIKE', "%{$search}%")
-                  ->orWhereRaw("CONCAT(name, ' ', last_name) LIKE ?", ["%{$search}%"])
-                  ->orWhereHas('profile', function ($q) use ($search) {
-                      $q->where('username', 'LIKE', "%{$search}%");
-                  });
+                $query->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('last_name', 'LIKE', "%{$search}%")
+                    ->orWhereRaw(
+                        "CONCAT(name, ' ', last_name) LIKE ?",
+                        ["%{$search}%"]
+                    )
+                    ->orWhereHas('profile', function ($q) use ($search) {
+                        $q->where('username', 'LIKE', "%{$search}%");
+                    });
+            })
+            ->get()
+            ->map(function ($user) use ($authUser) {
 
-        })
-        ->get()
-        ->map(function ($user) use ($authUser) {
-
-            $friendship = Friend::where(function ($query) use ($authUser, $user) {
+                // Buscar si existe una relación entre
+                // el usuario autenticado y el usuario encontrado
+                $friendship = Friend::where(function ($query) use ($authUser, $user) {
 
                     $query->where('sender_id', $authUser->id)
-                          ->where('receiver_id', $user->id);
-
+                        ->where('receiver_id', $user->id);
                 })
-                ->orWhere(function ($query) use ($authUser, $user) {
+                    ->orWhere(function ($query) use ($authUser, $user) {
 
-                    $query->where('sender_id', $user->id)
-                          ->where('receiver_id', $authUser->id);
+                        $query->where('sender_id', $user->id)
+                            ->where('receiver_id', $authUser->id);
+                    })
+                    ->first();
 
-                })
-                ->first();
+                // Estado por defecto
+                $user->friendship_button = 'add';
 
-            if (!$friendship) {
+                if ($friendship) {
 
-                $user->friendship_status = null;
+                    // Ya son amigos
+                    if ($friendship->status === 'accepted') {
 
-            } elseif ($friendship->status === 'accepted') {
+                        $user->friendship_button = 'friends';
+                    }
 
-                $user->friendship_status = 'accepted';
+                    // Yo envié la solicitud
+                    elseif (
+                        $friendship->status === 'pending' &&
+                        $friendship->sender_id === $authUser->id
+                    ) {
 
-            } elseif ($friendship->sender_id === $authUser->id) {
+                        $user->friendship_button = 'pending';
+                    }
 
-                $user->friendship_status = 'pending_sent';
+                    // El otro usuario me envió la solicitud
+                    elseif (
+                        $friendship->status === 'pending' &&
+                        $friendship->receiver_id === $authUser->id
+                    ) {
 
-            } else {
+                        $user->friendship_button = 'accept';
+                    }
+                }
 
-                $user->friendship_status = 'pending_received';
+                return $user;
+            });
 
-            }
-
-            return $user;
-        });
-
-    return response()->json([
-        'success' => true,
-        'users' => $users
-    ]);
-}
+        return response()->json([
+            'success' => true,
+            'users' => $users
+        ]);
+    }
 }
