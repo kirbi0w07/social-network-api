@@ -69,139 +69,23 @@ Además, utiliza **Laravel Reverb** para comunicación en tiempo real entre usua
 
 ### 🤝 Sistema de amistades
 
-El backend implementa un sistema de solicitudes de amistad con diferentes estados:
+El backend implementa un sistema de solicitudes de amistad 
 
-```text
-add
-  │
-  ▼
-pending
-  │
-  ├──────────────► rejected
-  │
-  ▼
-accepted
-```
-
-Permite:
-
-* Enviar solicitudes
-* Consultar estado de una relación
-* Aceptar solicitudes
-* Rechazar solicitudes
-* Evitar solicitudes duplicadas
-* Evitar enviarse una solicitud a sí mismo
-
-El backend determina el estado de la relación entre dos usuarios y lo devuelve al frontend para que la interfaz pueda mostrar la acción correspondiente.
 
 ---
 
 ## 🔔 Sistema de notificaciones
 
 Se utiliza el sistema de **Notifications de Laravel** para almacenar las notificaciones en la base de datos.
-
-Por ejemplo, cuando un usuario recibe una solicitud de amistad:
-
-```text
-Usuario A
-   │
-   │ solicita amistad
-   ▼
-FriendController
-   │
-   ├── Crea Friend
-   │
-   ├── Crea Notification
-   │
-   └── Dispatch Event
-          │
-          ▼
-   FriendRequestCreated
-```
-
-Las notificaciones pueden consultarse posteriormente desde la API.
-
 ---
 
 ## ⚡ Comunicación en tiempo real
 
 El proyecto utiliza **Laravel Reverb** y Broadcasting para emitir eventos en tiempo real.
 
-Por ejemplo:
 
-```text
-FriendRequestCreated
-FriendRequestAccepted
-```
-
-Los eventos son enviados a un canal privado asociado al usuario receptor:
-
-```text
-notifications.{userId}
-```
-
-### Ejemplo
-
-Cuando el usuario `2` recibe una solicitud:
-
-```text
-notifications.2
-```
-
-El frontend permanece escuchando ese canal mediante Laravel Echo.
-
-Cuando Laravel emite:
-
-```text
-friend.request.created
-```
-
-el frontend recibe el evento inmediatamente.
 
 ---
-
-## 🔄 Flujo de un evento en tiempo real
-
-```text
-                 FRONTEND
-                    │
-                    │ POST /friend
-                    ▼
-              Laravel API
-                    │
-                    ├── Crear Friend
-                    │
-                    ├── Crear Notification
-                    │
-                    └── Dispatch Event
-                           │
-                           ▼
-                  FriendRequestCreated
-                           │
-                           ▼
-                    Laravel Reverb
-                           │
-                           ▼
-                 notifications.{id}
-                           │
-                           ▼
-                 Laravel Echo / Vue
-                           │
-                           ▼
-                Notificación visual
-```
-
-Este mecanismo permite agregar posteriormente otros eventos en tiempo real, como:
-
-* Mensajes
-* Mensaje recibido
-* Usuario escribiendo
-* Solicitud aceptada
-* Nuevas interacciones
-* Actualizaciones de estado
-
----
-
 ## 🧱 Arquitectura
 
 El backend utiliza una estructura basada en las responsabilidades principales de Laravel:
@@ -248,31 +132,6 @@ Los modelos Eloquent representan las entidades y relaciones utilizadas por la ap
 ## 🗄️ Base de datos
 
 El proyecto utiliza **PostgreSQL**.
-
-Entre las entidades principales se encuentran:
-
-```text
-User
- │
- ├── Profile
- │
- ├── Posts
- │
- ├── Comments
- │
- ├── Notifications
- │
- └── Friendships
-```
-
-La información relacionada con las solicitudes de amistad se gestiona mediante una relación entre usuarios utilizando los campos:
-
-```text
-sender_id
-receiver_id
-status
-```
-
 ---
 
 ## ⚙️ Instalación
@@ -280,7 +139,7 @@ status
 Clonar el proyecto:
 
 ```bash
-git clone https://github.com/TU-USUARIO/social-network-api.git
+git clone https://github.com/kirbi0w07/social-network-api
 
 cd social-network-api
 ```
@@ -357,9 +216,7 @@ php artisan serve
 Este backend trabaja junto con el frontend desarrollado en Vue 3.
 
 **Frontend:**
-`https://github.com/TU-USUARIO/social-network-frontend`
-
-> Reemplaza el enlace anterior por la URL real de tu repositorio.
+`https://github.com/kirbi0w07/social-network`
 
 ---
 
