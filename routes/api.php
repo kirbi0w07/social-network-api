@@ -11,10 +11,17 @@ use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+    ]);
+});
+
 Route::get('/me', function (Request $request) {
     return $request->user();
 }
 )->middleware('auth:sanctum');
+
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
