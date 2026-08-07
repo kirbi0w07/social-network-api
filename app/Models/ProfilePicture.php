@@ -15,7 +15,7 @@ class ProfilePicture extends Model
     {
         return $this->belongsTo(Profile::class);
     }
-
+    //get full url
     protected function fullUrl(): Attribute
     {
         return new Attribute(
