@@ -35,7 +35,7 @@ class ProfilePictureController extends Controller
         $user = $request->user();
         if ($request->hasFile('profile_picture')) {
 
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
+            $path = $request->file('profile_picture')->store('profile_pictures');
             $profile = $request->user()->profile;
 
             $profile->profilePictures()->update(['is_current' => false]);
@@ -97,8 +97,7 @@ class ProfilePictureController extends Controller
         $path = $request
             ->file('cover_picture')
             ->store(
-                'cover_pictures',
-                'public'
+                'cover_pictures'
             );
 
         $profile = $user->profile;
