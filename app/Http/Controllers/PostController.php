@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Comment;
 use App\Models\Post;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
@@ -59,7 +60,7 @@ class PostController extends Controller
             foreach ($request->file('media') as $index => $file) {
 
                 $path = $file->store('posts');
-                dd([
+                Log::info('Post media upload', [
                     'default_disk' => config('filesystems.default'),
                     'path' => $path,
                     'exists_default' => Storage::exists($path),
