@@ -30,14 +30,14 @@ class AuthController extends Controller
                 'gender' => $request->gender,
                 'birthday' => $request->birthday,
             ]);
-        DB::commit();
+            DB::commit();
             $token = $user->createToken('auth_token')->plainTextToken;
             return response()->json(['success' => true, 'message' => 'User registered successfully', 'user' => $user, 'token' => $token], 201);
         } catch (\Throwable $th) {
             return response()->json([
-            'success' => false,
-            'message' => 'Error al registrar: ' . $th->getMessage()
-        ], 500);
+                'success' => false,
+                'message' => 'Error al registrar: ' . $th->getMessage()
+            ], 500);
         }
     }
 
@@ -57,7 +57,8 @@ class AuthController extends Controller
         return response()->json(['success' => true, 'message' => 'User logged in successfully', 'user' => $user, 'token' => $token], 200);
     }
 
-    public function logout( Request $request) {
+    public function logout(Request $request)
+    {
         $user = $request->user();
         if (!$user) {
             return response()->json(['message' => 'No hay sesión activa'], 401);
@@ -65,6 +66,6 @@ class AuthController extends Controller
 
         $user->currentAccessToken()->delete();
 
-        return response()->json(['message' => 'Token eliminado correctamente']);
+        return response()->json(['message' => 'Token eliminado correctamente'], 200);
     }
 }

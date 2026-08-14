@@ -30,7 +30,7 @@ class ProfilePictureController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-        'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
         $user = $request->user();
         if ($request->hasFile('profile_picture')) {
@@ -84,35 +84,35 @@ class ProfilePictureController extends Controller
     }
 
     public function uploadCover(Request $request)
-{
-    $request->validate([
-        'cover_picture' =>
+    {
+        $request->validate([
+            'cover_picture' =>
             'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
-
-    $user = $request->user();
-
-    if ($request->hasFile('cover_picture')) {
-
-        $path = $request
-            ->file('cover_picture')
-            ->store(
-                'cover_pictures'
-            );
-
-        $profile = $user->profile;
-
-        $profile->update([
-            'cover_picture' => $path,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' =>
+        $user = $request->user();
+
+        if ($request->hasFile('cover_picture')) {
+
+            $path = $request
+                ->file('cover_picture')
+                ->store(
+                    'cover_pictures'
+                );
+
+            $profile = $user->profile;
+
+            $profile->update([
+                'cover_picture' => $path,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' =>
                 'Cover picture uploaded successfully',
-            'profile' =>
+                'profile' =>
                 $profile->fresh()
-        ], 201);
+            ], 201);
+        }
     }
-}
 }
