@@ -1,0 +1,69 @@
+
+envVarGroups:
+  - name: laravel-shared
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false
+      - key: REVERB_APP_ID
+        value: mi-app
+      - key: REVERB_APP_KEY
+        generateValue: true
+      - key: REVERB_APP_SECRET
+        generateValue: true
+      - key: REVERB_SERVER_HOST
+        value: 0.0.0.0
+
+services:
+  - type: web
+    name: mi-api
+    runtime: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: sh docker/start-web.sh
+    healthCheckPath: /up
+    envVars:
+      - fromGroup: laravel-shared
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: mi-api-db
+          property: connectionString
+      - key: APP_URL
+        sync: false
+      - key: REVERB_HOST
+        fromService:
+          type: web
+          name: mi-reverb
+          property: host
+      - key: REVERB_PORT
+        fromService:
+          type: web
+          name: mi-reverb
+          property: port
+      - key: REVERB_SCHEME
+        value: http
+
+  - type: web
+    name: mi-reverb
+    runtime: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    dockerCommand: sh docker/start-reverb.sh
+    envVars:
+      - fromGroup: laravel-shared
+
+databases:
+  - name: mi-api-db
+    databaseName: mi_api
+    user: laravel
+    region: oregon
+    plan: free

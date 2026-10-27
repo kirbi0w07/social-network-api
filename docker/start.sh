@@ -1,17 +1,11 @@
-#!/bin/sh
 
+#!/bin/sh
 set -e
 
-echo "Starting Laravel..."
-
-php artisan storage:link || true
-
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
-
+echo "Ejecutando migraciones pendientes..."
 php artisan migrate --force
 
-php-fpm -D
-
-exec nginx -g "daemon off;"
+echo "Iniciando Laravel..."
+exec php artisan serve \
+  --host=0.0.0.0 \
+  --port="${PORT:-10000}"
