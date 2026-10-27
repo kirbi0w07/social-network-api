@@ -28,21 +28,22 @@ services:
     dockerCommand: sh docker/start-web.sh
     healthCheckPath: /up
     envVars:
-
       - fromGroup: laravel-shared
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_DATABASE
         value: social_network_api_97zy
+      - key: DB_USERNAME
+        value: social_network_api_97zy_user
       - key: DB_URL
         fromDatabase:
           name: social_network_api
           property: connectionString
-WS
 
 databases:
   - name: social_network_api
-    databaseName: mi_api
-    user: laravel
+    databaseName: social_network_api_97zy
+    user: social_network_api_97zy_user
     region: oregon
     plan: free
+
