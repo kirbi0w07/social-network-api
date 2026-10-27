@@ -28,41 +28,20 @@ services:
     dockerCommand: sh docker/start-web.sh
     healthCheckPath: /up
     envVars:
+
       - fromGroup: laravel-shared
       - key: DB_CONNECTION
         value: pgsql
+      - key: DB_DATABASE
+        value: social_network_api_97zy
       - key: DB_URL
         fromDatabase:
-          name: mi-api-db
+          name: social_network_api
           property: connectionString
-      - key: APP_URL
-        sync: false
-      - key: REVERB_HOST
-        fromService:
-          type: web
-          name: mi-reverb
-          property: host
-      - key: REVERB_PORT
-        fromService:
-          type: web
-          name: mi-reverb
-          property: port
-      - key: REVERB_SCHEME
-        value: http
-
-  - type: web
-    name: mi-reverb
-    runtime: docker
-    region: oregon
-    plan: free
-    dockerfilePath: ./Dockerfile
-    dockerContext: .
-    dockerCommand: sh docker/start-reverb.sh
-    envVars:
-      - fromGroup: laravel-shared
+WS
 
 databases:
-  - name: mi-api-db
+  - name: social_network_api
     databaseName: mi_api
     user: laravel
     region: oregon
