@@ -32,12 +32,16 @@ RUN composer install \
     --optimize-autoloader
 
 COPY . .
+
 RUN php artisan package:discover --ansi
-RUN mkdir -p storage/framework/cache \
+
+RUN mkdir -p \
+    storage/framework/cache \
     storage/framework/sessions \
     storage/framework/views \
     bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 10000
-CMD ["sh", "-c", "php artisan serve --host=0.0.0.0 --port=${PORT:-10000}"]
+
+CMD ["sh", "docker/start-web.sh"]
