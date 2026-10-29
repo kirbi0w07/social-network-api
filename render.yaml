@@ -1,25 +1,7 @@
 
-envVarGroups:
-  - name: laravel-shared
-    envVars:
-      - key: APP_ENV
-        value: production
-      - key: APP_DEBUG
-        value: "false"
-      - key: APP_KEY
-        sync: false
-      - key: REVERB_APP_ID
-        value: mi-app
-      - key: REVERB_APP_KEY
-        generateValue: true
-      - key: REVERB_APP_SECRET
-        generateValue: true
-      - key: REVERB_SERVER_HOST
-        value: 0.0.0.0
-
 services:
   - type: web
-    name: mi-api
+    name: social-network-api
     runtime: docker
     region: oregon
     plan: free
@@ -28,17 +10,54 @@ services:
     dockerCommand: sh docker/start-web.sh
     healthCheckPath: /up
     envVars:
-      - fromGroup: laravel-shared
+      - key: APP_ENV
+        value: production
+
+      - key: APP_DEBUG
+        value: "false"
+
+      - key: APP_KEY
+        sync: false
+
       - key: DB_CONNECTION
         value: pgsql
-      - key: DB_DATABASE
-        value: social_network_api_97zy
-      - key: DB_USERNAME
-        value: social_network_api_97zy_user
-      - key: DB_URL
+
+      - key: DB_HOST
         fromDatabase:
           name: social_network_api
-          property: connectionString
+          property: host
+
+      - key: DB_PORT
+        fromDatabase:
+          name: social_network_api
+          property: port
+
+      - key: DB_DATABASE
+        fromDatabase:
+          name: social_network_api
+          property: database
+
+      - key: DB_USERNAME
+        fromDatabase:
+          name: social_network_api
+          property: user
+
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: social_network_api
+          property: password
+
+      - key: REVERB_APP_ID
+        value: mi-app
+
+      - key: REVERB_APP_KEY
+        generateValue: true
+
+      - key: REVERB_APP_SECRET
+        generateValue: true
+
+      - key: REVERB_SERVER_HOST
+        value: 0.0.0.0
 
 databases:
   - name: social_network_api
@@ -46,4 +65,3 @@ databases:
     user: social_network_api_97zy_user
     region: oregon
     plan: free
-

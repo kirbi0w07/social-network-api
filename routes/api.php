@@ -17,22 +17,24 @@ Route::get('/health', function () {
     ]);
 });
 
-Route::get('/me', function (Request $request) {
-    return $request->user();
-}
+Route::get(
+    '/me',
+    function (Request $request) {
+        return $request->user();
+    }
 )->middleware('auth:sanctum');
 
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::get('post', [PostController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::resource('profile', ProfileController::class);
     Route::resource('profile_pictures', ProfilePictureController::class);
     Route::post('cover_picture', [ProfilePictureController::class, 'uploadCover']);
-    Route::resource('post', PostController::class);
+    Route::resource('post', PostController::class)->except(['index']);
     Route::get('get_posts_by_user_id', [PostController::class, 'getPostsByUserId']);
     Route::post('/post/{post}/react', [PostController::class, 'reactToPost']);
     Route::post('/post/{post}/reactToComment', [PostController::class, 'reactToComment']);
@@ -47,5 +49,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/get_user_by_username', [ProfileController::class, 'getUserByUsername']);
 
     Route::get('/notifications', [NotificationController::class, 'index']);
-
 });
